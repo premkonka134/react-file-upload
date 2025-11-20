@@ -200,7 +200,7 @@ router.get('/my-files', authenticate, async (req, res) => {
 });
 
 // @route   GET /api/files/team-files
-// @desc    Get team shared files
+// @desc    Get team shared files (only files shared with team by current user or files user uploaded)
 // @access  Private
 router.get('/team-files', authenticate, async (req, res) => {
   try {
@@ -225,15 +225,25 @@ router.get('/team-files', authenticate, async (req, res) => {
       ).exec();
     })
 
-    // Return all documents (no isTeamShared filter) with pagination
-    const documents = await Document.find({})
+    // Return only documents that were team-shared by current user or uploaded by current user
+    const documents = await Document.find({
+      $or: [
+        { teamSharedBy: req.user._id },
+        { uploadedBy: req.user._id, isTeamShared: true }
+      ]
+    })
       .populate('uploadedBy', 'name email')
       .populate('teamSharedBy', 'name email')
       .sort({ createdAt: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit);
 
-    const total = await Document.countDocuments({});
+    const total = await Document.countDocuments({
+      $or: [
+        { teamSharedBy: req.user._id },
+        { uploadedBy: req.user._id, isTeamShared: true }
+      ]
+    });
 
     const formattedDocuments = documents.map(doc => ({
       id: doc._id,
