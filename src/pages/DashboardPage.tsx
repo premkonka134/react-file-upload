@@ -123,38 +123,41 @@ export const DashboardPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-slate-400 border-t-blue-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-0">
-              Invoices Processing Report
-            </h1>
+        <div className="mb-12">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-10">
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-2">
+                Invoices Processing Report
+              </h1>
+              <p className="text-slate-400 text-sm">Real-time processing metrics and analytics</p>
+            </div>
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="flex items-center justify-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors disabled:opacity-50 touch-manipulation"
+              className="mt-4 sm:mt-0 flex items-center justify-center space-x-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-xl hover:scale-105 transform"
               title="Refresh Report Data"
             >
-              <RefreshCw size={20} className={refreshing ? 'animate-spin' : ''} />
-              <span>Refresh</span>
+              <RefreshCw size={18} className={refreshing ? 'animate-spin' : ''} />
+              <span className="font-medium">Refresh</span>
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <div className="relative group">
+              <label className="block text-sm font-semibold text-slate-300 mb-2">Status</label>
               <select
                 value={filters.status}
                 onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
+                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none hover:border-slate-500 transition-colors"
               >
                 <option value="All">All</option>
                 <option value="DONE">Completed</option>
@@ -163,12 +166,12 @@ export const DashboardPage: React.FC = () => {
               </select>
             </div>
 
-            <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Document Type</label>
+            <div className="relative group">
+              <label className="block text-sm font-semibold text-slate-300 mb-2">Document Type</label>
               <select
                 value={filters.documentType}
                 onChange={(e) => setFilters({ ...filters, documentType: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
+                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none hover:border-slate-500 transition-colors"
               >
                 <option value="All">All</option>
                 {Object.keys(stats.byDocumentType).map(type => (
@@ -177,12 +180,12 @@ export const DashboardPage: React.FC = () => {
               </select>
             </div>
 
-            <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Created Time</label>
+            <div className="relative group">
+              <label className="block text-sm font-semibold text-slate-300 mb-2">Created Time</label>
               <select
                 value={filters.createdTime}
                 onChange={(e) => setFilters({ ...filters, createdTime: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
+                className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none hover:border-slate-500 transition-colors"
               >
                 <option value="All">All</option>
                 <option value="Today">Today</option>
@@ -192,54 +195,67 @@ export const DashboardPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            <div className="bg-white border-2 border-gray-200 rounded-lg p-6 text-center">
-              <div className="text-5xl font-bold text-gray-900 mb-2">{stats.completed}</div>
-              <div className="text-gray-600">Invoices Completed</div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+            <div className="bg-gradient-to-br from-slate-800 to-slate-700 border border-slate-600 rounded-xl p-6 text-center hover:border-slate-500 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 shadow-lg">
+              <div className="inline-flex items-center justify-center w-14 h-14 bg-green-500/20 rounded-full mb-3">
+                <span className="text-2xl">✓</span>
+              </div>
+              <div className="text-4xl font-bold text-green-400 mb-2">{stats.completed}</div>
+              <div className="text-slate-400 text-sm font-medium">Invoices Completed</div>
             </div>
 
-            <div className="bg-white border-2 border-gray-200 rounded-lg p-6 text-center">
-              <div className="text-5xl font-bold text-gray-900 mb-2">{stats.inProgress}</div>
-              <div className="text-gray-600">Invoices In Progress</div>
+            <div className="bg-gradient-to-br from-slate-800 to-slate-700 border border-slate-600 rounded-xl p-6 text-center hover:border-slate-500 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 shadow-lg">
+              <div className="inline-flex items-center justify-center w-14 h-14 bg-yellow-500/20 rounded-full mb-3">
+                <span className="text-2xl">⟳</span>
+              </div>
+              <div className="text-4xl font-bold text-yellow-400 mb-2">{stats.inProgress}</div>
+              <div className="text-slate-400 text-sm font-medium">Invoices In Progress</div>
             </div>
 
-            <div className="bg-white border-2 border-gray-200 rounded-lg p-6 text-center">
-              <div className="text-5xl font-bold text-gray-900 mb-2">{stats.error}</div>
-              <div className="text-gray-600">Invoices Error</div>
+            <div className="bg-gradient-to-br from-slate-800 to-slate-700 border border-slate-600 rounded-xl p-6 text-center hover:border-slate-500 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 shadow-lg">
+              <div className="inline-flex items-center justify-center w-14 h-14 bg-red-500/20 rounded-full mb-3">
+                <span className="text-2xl">!</span>
+              </div>
+              <div className="text-4xl font-bold text-red-400 mb-2">{stats.error}</div>
+              <div className="text-slate-400 text-sm font-medium">Invoices Error</div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div className="bg-gradient-to-br from-slate-800 to-slate-700 border border-slate-600 rounded-xl p-6 shadow-lg overflow-hidden">
+              <h3 className="text-lg font-semibold text-white mb-6 flex items-center">
+                <span className="w-1 h-6 bg-gradient-to-b from-blue-400 to-cyan-400 rounded mr-3"></span>
+                Document Type Analysis
+              </h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b-2 border-gray-200">
-                      <th className="text-left py-3 font-semibold">Document Type</th>
-                      <th className="text-center py-3 font-semibold">Total Invoices Done</th>
-                      <th className="text-center py-3 font-semibold">Success Rate</th>
-                      <th className="text-center py-3 font-semibold">Avg Time Taken (secs)</th>
+                    <tr className="border-b border-slate-600">
+                      <th className="text-left py-3 font-semibold text-slate-300 px-2">Type</th>
+                      <th className="text-center py-3 font-semibold text-slate-300 px-2">Done</th>
+                      <th className="text-center py-3 font-semibold text-slate-300 px-2">Success</th>
+                      <th className="text-center py-3 font-semibold text-slate-300 px-2">Avg Time</th>
                     </tr>
                   </thead>
                   <tbody>
                     {Object.entries(stats.byDocumentType).map(([type, data]) => (
-                      <tr key={type} className="border-b border-gray-100">
-                        <td className="py-3">{type}</td>
-                        <td className="py-3 text-center">{data.done}</td>
-                        <td className="py-3 text-center">{data.successRate}%</td>
-                        <td className="py-3 text-center">{data.avgTime}</td>
+                      <tr key={type} className="border-b border-slate-700 hover:bg-slate-700/50 transition-colors">
+                        <td className="py-3 px-2 text-slate-300">{type}</td>
+                        <td className="py-3 px-2 text-center text-green-400 font-semibold">{data.done}</td>
+                        <td className="py-3 px-2 text-center text-cyan-400 font-semibold">{data.successRate}%</td>
+                        <td className="py-3 px-2 text-center text-slate-400">{data.avgTime}s</td>
                       </tr>
                     ))}
-                    <tr className="font-bold bg-gray-50">
-                      <td className="py-3">Total</td>
-                      <td className="py-3 text-center">{stats.completed}</td>
-                      <td className="py-3 text-center">{overallSuccessRate}%</td>
-                      <td className="py-3 text-center">
+                    <tr className="font-bold bg-slate-700/50 border-t-2 border-slate-600">
+                      <td className="py-3 px-2 text-white">Total</td>
+                      <td className="py-3 px-2 text-center text-green-400">{stats.completed}</td>
+                      <td className="py-3 px-2 text-center text-cyan-400">{overallSuccessRate}%</td>
+                      <td className="py-3 px-2 text-center text-slate-300">
                         {Object.values(stats.byDocumentType).length > 0
                           ? (Object.values(stats.byDocumentType)
                               .reduce((sum, d) => sum + parseFloat(d.avgTime as any), 0) /
                               Object.values(stats.byDocumentType).length).toFixed(2)
-                          : 0}
+                          : 0}s
                       </td>
                     </tr>
                   </tbody>
@@ -247,8 +263,11 @@ export const DashboardPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="bg-white border border-gray-200 rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-4">Processing Status Breakdown by Document Type</h3>
+            <div className="bg-gradient-to-br from-slate-800 to-slate-700 border border-slate-600 rounded-xl p-6 shadow-lg">
+              <h3 className="text-lg font-semibold text-white mb-6 flex items-center">
+                <span className="w-1 h-6 bg-gradient-to-b from-blue-400 to-cyan-400 rounded mr-3"></span>
+                Processing Breakdown
+              </h3>
               <div className="flex items-end justify-center space-x-8 h-64">
                 {Object.entries(stats.byDocumentType).map(([type, data]) => {
                   const maxHeight = Math.max(...Object.values(stats.byDocumentType).map(d => d.total));
@@ -258,38 +277,27 @@ export const DashboardPage: React.FC = () => {
                     <div key={type} className="flex flex-col items-center">
                       <div className="relative w-20 flex flex-col-reverse" style={{ height: '200px' }}>
                         <div
-                          className="bg-blue-500 w-full rounded-t"
+                          className="bg-gradient-to-t from-blue-500 to-cyan-400 w-full rounded-t shadow-lg hover:from-blue-600 hover:to-cyan-500 transition-all duration-300"
                           style={{ height: `${height}%` }}
                         ></div>
-                        <div className="absolute -top-6 left-0 right-0 text-center text-sm font-medium">
+                        <div className="absolute -top-7 left-0 right-0 text-center text-sm font-bold text-white bg-slate-700 rounded px-2 py-1">
                           {data.total}
                         </div>
                       </div>
-                      <div className="mt-2 text-sm text-gray-600">{type}</div>
+                      <div className="mt-4 text-xs font-semibold text-slate-300 text-center">{type}</div>
                     </div>
                   );
                 })}
-              </div>
-              <div className="mt-4 flex justify-center space-x-4 text-sm">
-                <div className="flex items-center">
-                  <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                  <span>Invoices Done</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-                  <span>Invoices In Progress</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
-                  <span>Invoices Error</span>
-                </div>
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="bg-white border border-gray-200 rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-4 text-center">Success Rate</h3>
+            <div className="bg-gradient-to-br from-slate-800 to-slate-700 border border-slate-600 rounded-xl p-8 shadow-lg">
+              <h3 className="text-lg font-semibold text-white mb-6 text-center flex items-center justify-center">
+                <span className="w-1 h-6 bg-gradient-to-b from-blue-400 to-cyan-400 rounded mr-3"></span>
+                Success Rate
+              </h3>
               <div className="flex items-center justify-center">
                 <div className="relative w-48 h-48">
                   <svg className="w-full h-full transform -rotate-90">
@@ -297,7 +305,7 @@ export const DashboardPage: React.FC = () => {
                       cx="96"
                       cy="96"
                       r="80"
-                      stroke="#e5e7eb"
+                      stroke="#334155"
                       strokeWidth="20"
                       fill="none"
                     />
@@ -305,26 +313,35 @@ export const DashboardPage: React.FC = () => {
                       cx="96"
                       cy="96"
                       r="80"
-                      stroke="#22c55e"
+                      stroke="url(#successGradient)"
                       strokeWidth="20"
                       fill="none"
                       strokeDasharray={`${(overallSuccessRate / 100) * 502.4} 502.4`}
                       className="transition-all duration-1000"
                     />
+                    <defs>
+                      <linearGradient id="successGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#22c55e" />
+                        <stop offset="100%" stopColor="#10b981" />
+                      </linearGradient>
+                    </defs>
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-4xl font-bold text-gray-900">{overallSuccessRate}%</span>
+                    <span className="text-5xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">{overallSuccessRate}%</span>
                   </div>
                 </div>
               </div>
-              <div className="mt-4 flex justify-between text-sm text-gray-600">
+              <div className="mt-6 flex justify-between text-xs font-semibold text-slate-400">
                 <span>0%</span>
                 <span>100%</span>
               </div>
             </div>
 
-            <div className="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-4">Daily Volume of Processed Invoices by Document Type</h3>
+            <div className="lg:col-span-2 bg-gradient-to-br from-slate-800 to-slate-700 border border-slate-600 rounded-xl p-6 shadow-lg">
+              <h3 className="text-lg font-semibold text-white mb-6 flex items-center">
+                <span className="w-1 h-6 bg-gradient-to-b from-blue-400 to-cyan-400 rounded mr-3"></span>
+                Daily Processing Volume
+              </h3>
               <div className="h-64 flex items-end justify-between px-4">
                 {[...Array(8)].map((_, i) => {
                   const height = Math.random() * 80 + 20;
@@ -332,25 +349,21 @@ export const DashboardPage: React.FC = () => {
                     <div key={i} className="flex flex-col items-center flex-1 mx-1">
                       <div className="w-full flex flex-col-reverse" style={{ height: '200px' }}>
                         <div
-                          className="bg-blue-400 w-full rounded-t"
+                          className="bg-gradient-to-t from-blue-500 to-cyan-400 w-full rounded-t shadow-lg hover:from-blue-600 hover:to-cyan-500 transition-all duration-300"
                           style={{ height: `${height}%` }}
                         ></div>
                       </div>
-                      <div className="mt-2 text-xs text-gray-600">
+                      <div className="mt-2 text-xs font-semibold text-slate-400">
                         {`${5 + i * 2}:00 ${i < 4 ? 'AM' : 'PM'}`}
                       </div>
                     </div>
                   );
                 })}
               </div>
-              <div className="mt-4 flex justify-center space-x-4 text-sm">
+              <div className="mt-6 flex justify-center space-x-6 text-sm">
                 <div className="flex items-center">
-                  <div className="w-3 h-3 bg-blue-400 rounded-full mr-2"></div>
-                  <span>credit_note</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-3 h-3 bg-blue-600 rounded-full mr-2"></div>
-                  <span>invoice</span>
+                  <div className="w-3 h-3 bg-gradient-to-t from-blue-500 to-cyan-400 rounded-full mr-2"></div>
+                  <span className="text-slate-400 font-medium">Invoices Processed</span>
                 </div>
               </div>
             </div>
