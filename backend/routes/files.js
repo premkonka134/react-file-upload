@@ -204,26 +204,53 @@ router.get('/my-files', authenticate, async (req, res) => {
 // @access  Private
 router.get('/team-files', authenticate, async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query;
+    let page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || 10;
 
-    const documents = await Document.find({ isTeamShared: true })
+    // Update statuses from SAP jobs (same as my-files)
+    const accessToken = await fetchSAPAccessToken(req.user._id);
+    if (!accessToken) {
+      return res.status(500).json({ message: 'Failed to fetch SAP access token' });
+    }
+    const sapResponseJobs = await getSAPDocumentJobs(accessToken);
+    sapResponseJobs?.results?.map(job => {
+      Document.updateOne(
+        { blobName: job.id },
+        {
+          status: job.status,
+          sapCreatedAt: job.createdAt,
+          sapFinishedAt: job.finished,
+          clientId: job.clientId
+        }
+      ).exec();
+    })
+
+    // Return all documents (no isTeamShared filter) with pagination
+    const documents = await Document.find({})
       .populate('uploadedBy', 'name email')
       .populate('teamSharedBy', 'name email')
-      .sort({ teamSharedAt: -1 })
+      .sort({ createdAt: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit);
 
-    const total = await Document.countDocuments({ isTeamShared: true });
+    const total = await Document.countDocuments({});
 
     const formattedDocuments = documents.map(doc => ({
       id: doc._id,
       name: doc.name,
       size: doc.size,
       type: doc.type,
-      uploadedBy: doc.uploadedBy.email,
+      uploadedBy: doc.uploadedBy?.email || doc.uploadedBy?.name,
       uploadedAt: doc.createdAt,
       isShared: doc.isShared,
-      downloadUrl: doc.downloadUrl
+      isTeamShared: doc.isTeamShared,
+      teamSharedBy: doc.teamSharedBy?.email || doc.teamSharedBy?.name,
+      blobName: doc.blobName,
+      downloadUrl: doc.downloadUrl,
+      status: doc.status,
+      sapCreatedAt: doc.sapCreatedAt,
+      sapFinishedAt: doc.sapFinishedAt,
+      clientId: doc.clientId
     }));
 
     res.json({

@@ -1,6 +1,6 @@
-import React, { useEffect,useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, File, Calendar, User, FileText, Hash, Eye } from 'lucide-react';
+import { ArrowLeft, File, Calendar, User, FileText, Hash, Eye, ChevronDown, ChevronRight } from 'lucide-react';
 import { Document } from '../types';
 import { fileService } from '../services/fileService';
 export const FileDetailsPage: React.FC = () => {
@@ -10,80 +10,81 @@ export const FileDetailsPage: React.FC = () => {
   console.log('Document Details:', document);
   const [loading, setLoading] = useState(true);
   type FileData = {
-  status: string;
-  id: string;
-  fileName: string;
-  documentType: string;
-  created: string;
-  finished: string;
-  clientId: string;
-  languageCodes: string[];
-  pageCount: number;
-  schemaId: string;
-  schemaVersion: string;
-  schemaName: string;
-  width: number;
-  height: number;
-  country: string;
-  bocrVersion: string;
-  doxVersion: string;
-  fileType: string;
-  enrichment: {
-    sender: any[];
-    employee: any[];
+    status: string;
+    id: string;
+    fileName: string;
+    documentType: string;
+    created: string;
+    finished: string;
+    clientId: string;
+    languageCodes: string[];
+    pageCount: number;
+    schemaId: string;
+    schemaVersion: string;
+    schemaName: string;
+    width: number;
+    height: number;
+    country: string;
+    bocrVersion: string;
+    doxVersion: string;
+    fileType: string;
+    enrichment: {
+      sender: any[];
+      employee: any[];
+    };
+    dataForRetrainingStatus: string;
+    extraction?: {
+      headerFields?: ExtractionHeaderField[];
+      lineItems?: ExtractionLineItem[][];
+    };
   };
-  dataForRetrainingStatus: string;
-  extraction?: {
-    headerFields?: ExtractionHeaderField[];
-    lineItems?: ExtractionLineItem[][];
-  };
-};
 
-type ExtractionHeaderField = {
-  name: string;
-  category: string;
-  value: string | number;
-  rawValue: string;
-  type: "string" | "number" | "date";
-  page: number;
-  confidence: number;
-  coordinates: {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
+  type ExtractionHeaderField = {
+    name: string;
+    category: string;
+    value: string | number;
+    rawValue: string;
+    type: "string" | "number" | "date";
+    page: number;
+    confidence: number;
+    coordinates: {
+      x: number;
+      y: number;
+      w: number;
+      h: number;
+    };
+    model: string;
+    label: string;
+    description: string;
+    group?: number;
   };
-  model: string;
-  label: string;
-  description: string;
-  group?: number;
-};
 
-type ExtractionLineItem = {
-  name: string;
-  category: string;
-  value: string | number;
-  rawValue: string;
-  type: "string" | "number" | "date";
-  page: number;
-  confidence: number;
-  coordinates: {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
+  type ExtractionLineItem = {
+    name: string;
+    category: string;
+    value: string | number;
+    rawValue: string;
+    type: "string" | "number" | "date";
+    page: number;
+    confidence: number;
+    coordinates: {
+      x: number;
+      y: number;
+      w: number;
+      h: number;
+    };
+    model: string;
+    label: string;
+    description: string;
   };
-  model: string;
-  label: string;
-  description: string;
-};
   const [fileDetails, setFileDetails] = useState<FileData | null>(null);
+  const [expandedLineItems, setExpandedLineItems] = useState<Set<number>>(new Set());
   const fetchFileData = async (document: Document) => {
     try {
       const fileData = await fileService.getFileData(document.id);
       console.log('Fetched File Data:', fileData);
       // You can set the file data to state if needed 
-       setFileDetails(fileData.data);
+      setFileDetails(fileData.data);
     } catch (error) {
       console.error('Failed to fetch files:', error);
     } finally {
@@ -150,6 +151,24 @@ type ExtractionLineItem = {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const toggleLineItemExpanded = (index: number) => {
+    const newExpanded = new Set(expandedLineItems);
+    if (newExpanded.has(index)) {
+      newExpanded.delete(index);
+    } else {
+      newExpanded.add(index);
+    }
+    setExpandedLineItems(newExpanded);
+  };
+
+  const groupLineItemsByIndex = () => {
+    const grouped: { [key: number]: ExtractionLineItem[] } = {};
+    fileDetails?.extraction?.lineItems?.forEach((lineItems, idx) => {
+      grouped[idx] = lineItems;
+    });
+    return grouped;
   };
 
   if (!document) {
@@ -354,37 +373,75 @@ type ExtractionLineItem = {
                         <td className="py-3 text-gray-900">{field.value}</td>
                       </tr>
                     ))}
-                    
+
                   </tbody>
                 </table>
               </div>
             </div>
-             <div className="bg-white rounded-lg shadow-sm border p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Line fields</h2>
+            <div className="bg-white rounded-lg shadow-sm border p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Line Items ({fileDetails?.extraction?.lineItems?.length || 0})
+              </h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 font-medium text-gray-500">Label</th>
-                      <th className="text-left py-3 font-medium text-gray-500">Type</th>
-                      <th className="text-left py-3 font-medium text-gray-500">Name</th>
-                      <th className="text-left py-3 font-medium text-gray-500">Value</th>
+                    <tr className="border-b border-gray-200 bg-gray-50">
+                      <th className="text-left py-3 px-4 font-medium text-gray-700 w-12"></th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">Label</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">Value</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {fileDetails?.extraction?.lineItems?.map((lineItems, index) => (
-                      <React.Fragment key={index}>
-                        {lineItems.map((field, fieldIndex) => (
-                          <tr key={fieldIndex}>
-                            <td className="py-3 text-gray-900">{field.label}</td>
-                            <td className="py-3 text-gray-900">{field.type}</td>
-                            <td className="py-3 text-gray-900">{field.name}</td>
-                            <td className="py-3 text-gray-900">{field.value}</td>
+                  <tbody>
+                    {fileDetails?.extraction?.lineItems?.map((lineItems, lineIndex) => {
+                      const isExpanded = expandedLineItems.has(lineIndex);
+                      const itemName =  `Line Item ${lineIndex + 1}`;
+
+                      return (
+                        <React.Fragment key={lineIndex}>
+                          <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                            <td className="py-3 px-4">
+                              <button
+                                onClick={() => toggleLineItemExpanded(lineIndex)}
+                                className="flex items-center justify-center w-6 h-6 rounded hover:bg-gray-200 transition-colors"
+                              >
+                                {isExpanded ? (
+                                  <ChevronDown size={18} className="text-gray-600" />
+                                ) : (
+                                  <ChevronRight size={18} className="text-gray-600" />
+                                )}
+                              </button>
+                            </td>
+                            <td className="py-3 px-4 text-gray-900 font-medium">{itemName}</td>
+                            <td className="py-3 px-4 text-gray-600"></td>
                           </tr>
-                        ))}
-                      </React.Fragment>
-                    ))}
-                    
+                          {isExpanded && (
+                            <tr className="bg-gray-50 border-b border-gray-100">
+                              <td colSpan={3} className="p-0">
+                                <div className="border-l-4 border-green-500 bg-gray-50">
+                                  <table className="w-full text-sm">
+                                    <tbody>
+                                      {lineItems.map((field, fieldIndex) => (
+                                        <tr
+                                          key={fieldIndex}
+                                          className="border-b border-gray-200 hover:bg-white transition-colors"
+                                        >
+                                          <td className="py-2 px-6 text-gray-600 font-medium w-32">
+                                            {field.label}
+                                          </td>
+                                          <td className="py-2 px-6 text-gray-900">
+                                            {field.value}
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -417,7 +474,7 @@ type ExtractionLineItem = {
             </div>
 
             {/* Permissions */}
-            <div className="bg-white rounded-lg shadow-sm border p-6">
+            {/* <div className="bg-white rounded-lg shadow-sm border p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Permissions</h2>
               <div className="space-y-2">
                 {Object.entries(pdfDetails.permissions).map(([permission, allowed]) => (
@@ -432,7 +489,7 @@ type ExtractionLineItem = {
                   </div>
                 ))}
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

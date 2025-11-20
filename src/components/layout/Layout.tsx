@@ -5,23 +5,26 @@ import { Sidebar } from '../common/Sidebar';
 import { MyFilesPage } from '../../pages/MyFilesPage';
 import { TeamFilesPage } from '../../pages/TeamFilesPage';
 import { AdminPage } from '../../pages/AdminPage';
+import { DashboardPage } from '../../pages/DashboardPage';
 import { useAuth } from '../../contexts/AuthContext';
 
 export const Layout: React.FC = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('myFiles');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const renderContent = () => {
     switch (activeTab) {
+      case 'dashboard':
+        return <DashboardPage />;
       case 'myFiles':
         return <MyFilesPage />;
       case 'teamFiles':
         return <TeamFilesPage />;
       case 'admin':
-        return user?.role === 'admin' ? <AdminPage /> : <MyFilesPage />;
+        return user?.role === 'admin' ? <AdminPage /> : <DashboardPage />;
       default:
-        return <MyFilesPage />;
+        return <DashboardPage />;
     }
   };
 

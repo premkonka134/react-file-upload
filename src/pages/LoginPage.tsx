@@ -45,7 +45,7 @@ export const LoginPage: React.FC = () => {
               DocuAI Hub
             </h1>
             <p className="text-sm sm:text-base text-gray-600">
-              Central AI document intelligence hub
+              Central AI Document Intelligence Hub
             </p>
           </div>
 

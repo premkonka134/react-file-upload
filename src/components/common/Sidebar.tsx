@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { Files, Users, FolderOpen } from 'lucide-react';
+import { Files, Users, FolderOpen, BarChart3 } from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;
@@ -18,6 +18,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const { user } = useAuth();
 
   const menuItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'myFiles', label: 'My Files', icon: Files },
     { id: 'teamFiles', label: 'Team Files', icon: FolderOpen },
     ...(user?.role === 'admin'
